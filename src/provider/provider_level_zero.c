@@ -522,13 +522,17 @@ static umf_result_t ze_memory_provider_alloc_helper(void *provider, size_t size,
                                                     int update_stats,
                                                     void **resultPtr) {
     ze_memory_provider_t *ze_provider = provider;
+    ze_relaxed_allocation_limits_exp_desc_t const allocLimits = {
+        .stype = ZE_STRUCTURE_TYPE_RELAXED_ALLOCATION_LIMITS_EXP_DESC,
+        .pNext = NULL,
+        .flags = ZE_RELAXED_ALLOCATION_LIMITS_EXP_FLAG_MAX_SIZE};
 
     ze_result_t ze_result = ZE_RESULT_SUCCESS;
     switch (ze2umf_memory_type(ze_provider->memory_type)) {
     case UMF_MEMORY_TYPE_HOST: {
         ze_host_mem_alloc_desc_t host_desc = {
             .stype = ZE_STRUCTURE_TYPE_HOST_MEM_ALLOC_DESC,
-            .pNext = NULL,
+            .pNext = &allocLimits,
             .flags = 0};
         ze_result = g_ze_ops.zeMemAllocHost(ze_provider->context, &host_desc,
                                             size, alignment, resultPtr);
